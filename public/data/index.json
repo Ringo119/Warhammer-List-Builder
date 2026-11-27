@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-11-27T22:03:28.403Z",
+  "sources": {
+    "bsdata": {
+      "repo": "BSData wh40k-11e (via mirror)",
+      "commit": "f015101d4c495173283e1b97e9d59f2befb877ad 2026-11-11T21:34:40+00:00"
+    },
+    "wahapedia": {
+      "note": "Powered by Wahapedia (https://wahapedia.ru)",
+      "lastUpdate": "2026-11-23 01:43:36"
+    }
+  },
+  "factions": [
+    {
+      "key": "adeptus-custodes",
+      "name": "Adeptus Custodes",
+      "alliance": "Imperium",
+      "file": "adeptus-custodes.json",
+      "size": 2055650
+    }
+  ]
+}
