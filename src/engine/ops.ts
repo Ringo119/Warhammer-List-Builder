@@ -1,0 +1,174 @@
+import type { Roster, Sel } from './types';
+import type { Catalog, Def } from './catalog';
+import { State, type RNode, type Option } from './state';
+
+export const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+
+export function clone<T>(x: T): T {
+  return JSON.parse(JSON.stringify(x));
+}
+
+function findSel(sels: Sel[], u: string): { sel: Sel; list: Sel[] } | undefined {
+  for (const s of sels) {
+    if (s.uid === u) return { sel: s, list: sels };
+    const r = findSel(s.ch, u);
+    if (r) return r;
+  }
+  return undefined;
+}
+
+function childList(r: Roster, parentUid: string | null): Sel[] {
+  if (!parentUid) return r.sels;
+  const f = findSel(r.sels, parentUid);
+  if (!f) throw new Error(`selection ${parentUid} not found`);
+  return f.sel.ch;
+}
+
+/** Add required child selections (min constraints, group defaults) to a freshly added selection. */
+function fillDefaults(cat: Catalog, r: Roster, selUid: string, depth = 0) {
+  if (depth > 8) return;
+  const st = new State(cat, r);
+  const node = st.byUid.get(selUid);
+  if (!node) return;
+  const added: string[] = [];
+  const target = findSel(r.sels, selUid)!.sel;
+  const visit = (opts: Option[]) => {
+    for (const o of opts) {
+      if (o.hidden) continue;
+      if (o.def.kind === 'group') {
+        const need = o.min - o.count;
+        if (need > 0) {
+          const visible = flatEntries(o.children!).filter((c) => !c.hidden);
+          const pick =
+            visible.find((c) => o.def.defaultId && (c.def.id === o.def.defaultId || c.def.targetId === o.def.defaultId)) ??
+            (o.def.defaultId === 'none' && visible.length > 1 ? undefined : visible[0]);
+          if (pick) {
+            const s: Sel = { uid: uid(), id: pick.def.id, n: need, gs: pick.gs, ch: [] };
+            target.ch.push(s);
+            added.push(s.uid);
+          }
+        }
+        // nested groups with their own minimums
+        visit(o.children!.filter((c) => c.def.kind === 'group'));
+      } else {
+        const need = o.min - o.count;
+        if (need > 0) {
+          const s: Sel = { uid: uid(), id: o.def.id, n: need, gs: o.gs.length ? o.gs : undefined, ch: [] };
+          target.ch.push(s);
+          added.push(s.uid);
+        }
+      }
+    }
+  };
+  visit(st.options(node));
+  for (const a of added) fillDefaults(cat, r, a, depth + 1);
+}
+
+function flatEntries(opts: Option[]): Option[] {
+  return opts.flatMap((o) => (o.def.kind === 'group' ? flatEntries(o.children ?? []) : [o]));
+}
+
+export function addSelection(cat: Catalog, roster: Roster, parentUid: string | null, def: Def, gs: string[] = [], n = 1): { roster: Roster; uid: string } {
+  const r = clone(roster);
+  const s: Sel = { uid: uid(), id: def.id, n, gs: gs.length ? gs : undefined, ch: [] };
+  childList(r, parentUid).push(s);
+  fillDefaults(cat, r, s.uid);
+  r.updated = Date.now();
+  return { roster: r, uid: s.uid };
+}
+
+export function removeSelection(roster: Roster, selUid: string): Roster {
+  const r = clone(roster);
+  const f = findSel(r.sels, selUid);
+  if (!f) return roster;
+  f.list.splice(f.list.indexOf(f.sel), 1);
+  // drop associations pointing at removed selections
+  const alive = new Set<string>();
+  const collect = (ss: Sel[]) => ss.forEach((s) => { alive.add(s.uid); collect(s.ch); });
+  collect(r.sels);
+  const prune = (ss: Sel[]) =>
+    ss.forEach((s) => {
+      if (s.assoc) for (const k of Object.keys(s.assoc)) s.assoc[k] = s.assoc[k].filter((u) => alive.has(u));
+      prune(s.ch);
+    });
+  prune(r.sels);
+  r.updated = Date.now();
+  return r;
+}
+
+export function setCount(roster: Roster, selUid: string, n: number): Roster {
+  if (n <= 0) return removeSelection(roster, selUid);
+  const r = clone(roster);
+  const f = findSel(r.sels, selUid);
+  if (!f) return roster;
+  f.sel.n = n;
+  r.updated = Date.now();
+  return r;
+}
+
+/** Select exactly one option within a group (radio behaviour). */
+export function chooseInGroup(cat: Catalog, roster: Roster, parentUid: string, group: Option, choice: Option | null): Roster {
+  let r = clone(roster);
+  const list = childList(r, parentUid);
+  const inGroup = list.filter((s) => s.gs?.includes(group.def.id));
+  const total = Math.max(1, inGroup.reduce((a, s) => a + s.n, 0));
+  for (const s of inGroup) list.splice(list.indexOf(s), 1);
+  if (choice) r = addSelection(cat, r, parentUid, choice.def, choice.gs, group.max === 1 ? 1 : total).roster;
+  r.updated = Date.now();
+  return r;
+}
+
+export function duplicateSelection(roster: Roster, selUid: string): Roster {
+  const r = clone(roster);
+  const f = findSel(r.sels, selUid);
+  if (!f) return roster;
+  const copy = clone(f.sel);
+  const reid = (s: Sel) => { s.uid = uid(); delete s.assoc; s.ch.forEach(reid); };
+  reid(copy);
+  f.list.splice(f.list.indexOf(f.sel) + 1, 0, copy);
+  r.updated = Date.now();
+  return r;
+}
+
+/** Split one model off a multi-model selection so it can take different wargear. */
+export function splitSelection(roster: Roster, selUid: string): Roster {
+  const r = clone(roster);
+  const f = findSel(r.sels, selUid);
+  if (!f || f.sel.n < 2) return roster;
+  f.sel.n -= 1;
+  const copy = clone(f.sel);
+  copy.n = 1;
+  const reid = (s: Sel) => { s.uid = uid(); s.ch.forEach(reid); };
+  reid(copy);
+  f.list.splice(f.list.indexOf(f.sel) + 1, 0, copy);
+  r.updated = Date.now();
+  return r;
+}
+
+export function setAssociation(roster: Roster, selUid: string, assocId: string, targets: string[]): Roster {
+  const r = clone(roster);
+  const f = findSel(r.sels, selUid);
+  if (!f) return roster;
+  f.sel.assoc = { ...(f.sel.assoc ?? {}), [assocId]: targets };
+  if (!targets.length) delete f.sel.assoc[assocId];
+  r.updated = Date.now();
+  return r;
+}
+
+/** Create a new roster, auto-adding the required army configuration selections. */
+export function newRoster(cat: Catalog, name: string, faction: string): Roster {
+  let r: Roster = { id: uid(), name, faction, sels: [], created: Date.now(), updated: Date.now() };
+  const st = new State(cat, r);
+  for (const o of st.rootOptions()) {
+    if (o.hidden || o.def.kind === 'group') continue;
+    const need = st.constraints(o.def, st.virtual(st.force, o.def)).some(
+      (c) => c.type === 'min' && c.value > 0 && c.field === 'selections' && (c.scope === 'roster' || c.scope === 'force' || c.scope === 'parent'),
+    );
+    if (need) r = addSelection(cat, r, null, o.def).roster;
+  }
+  return r;
+}
+
+export function findNode(st: State, u: string): RNode | undefined {
+  return st.byUid.get(u);
+}
