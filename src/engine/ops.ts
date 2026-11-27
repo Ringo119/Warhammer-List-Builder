@@ -32,31 +32,32 @@ function fillDefaults(cat: Catalog, r: Roster, selUid: string, depth = 0) {
   if (!node) return;
   const added: string[] = [];
   const target = findSel(r.sels, selUid)!.sel;
+  const addedCount = new Map<string, number>();
+  const push = (o: Option, n: number) => {
+    const s: Sel = { uid: uid(), id: o.def.id, n, gs: o.gs.length ? o.gs : undefined, ch: [] };
+    target.ch.push(s);
+    added.push(s.uid);
+    addedCount.set(o.def.id, (addedCount.get(o.def.id) ?? 0) + n);
+  };
   const visit = (opts: Option[]) => {
     for (const o of opts) {
       if (o.hidden) continue;
       if (o.def.kind === 'group') {
-        const need = o.min - o.count;
+        // entries inside the group that have their own minimum (e.g. "Witchseeker min 4")
+        visit(o.children!);
+        const have = o.count + flatEntries(o.children!).reduce((t, c) => t + (addedCount.get(c.def.id) ?? 0), 0);
+        const need = o.min - have;
         if (need > 0) {
           const visible = flatEntries(o.children!).filter((c) => !c.hidden);
           const pick =
             visible.find((c) => o.def.defaultId && (c.def.id === o.def.defaultId || c.def.targetId === o.def.defaultId)) ??
             (o.def.defaultId === 'none' && visible.length > 1 ? undefined : visible[0]);
-          if (pick) {
-            const s: Sel = { uid: uid(), id: pick.def.id, n: need, gs: pick.gs, ch: [] };
-            target.ch.push(s);
-            added.push(s.uid);
-          }
+          if (pick) push(pick, need);
         }
-        // nested groups with their own minimums
-        visit(o.children!.filter((c) => c.def.kind === 'group'));
       } else {
-        const need = o.min - o.count;
-        if (need > 0) {
-          const s: Sel = { uid: uid(), id: o.def.id, n: need, gs: o.gs.length ? o.gs : undefined, ch: [] };
-          target.ch.push(s);
-          added.push(s.uid);
-        }
+        const want = Math.max(o.min, o.defaultAmount ?? 0);
+        const need = want - o.count - (addedCount.get(o.def.id) ?? 0);
+        if (need > 0) push(o, need);
       }
     }
   };

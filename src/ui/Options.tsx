@@ -1,6 +1,7 @@
 import type { State, Option, RNode } from '../engine/state';
 import type { Roster } from '../engine/types';
 import { addSelection, chooseInGroup, removeSelection, setCount, splitSelection } from '../engine/ops';
+import { useEffect, useState } from 'react';
 import { vibrate } from '../lib';
 import { IconSplit } from './icons';
 
@@ -143,6 +144,11 @@ function Entry({ ctx, parent, o, groupTotal, groupMax }: { ctx: Ctx; parent: RNo
   const groupFull = groupMax !== undefined && groupMax >= 0 && (groupTotal ?? 0) >= groupMax;
   const atMax = (o.max >= 0 && o.count >= o.max) || groupFull;
 
+  // large numeric values (manual points limit): type it in, or step in 25s
+  if (/^points limit$/i.test(o.name.trim()) && o.max !== 1 && o.nodes.length) {
+    return <NumberEntry ctx={ctx} o={o} step={25} />;
+  }
+
   // single toggle
   if (o.max === 1 && o.def.type !== 'model') {
     const on = o.count > 0;
@@ -227,5 +233,41 @@ function Entry({ ctx, parent, o, groupTotal, groupMax }: { ctx: Ctx; parent: RNo
         );
       })}
     </>
+  );
+}
+
+function NumberEntry({ ctx, o, step }: { ctx: Ctx; o: Option; step: number }) {
+  const node = o.nodes[0];
+  const [text, setText] = useState(String(node.n));
+  useEffect(() => setText(String(node.n)), [node.n]);
+  const min = Math.max(o.min, step);
+  const commit = (v: number) => {
+    const n = Math.max(min, Math.round(Number.isFinite(v) ? v : node.n));
+    setText(String(n));
+    if (n !== node.n) ctx.update(setCount(ctx.roster, node.uid, n));
+  };
+  return (
+    <div className="opt">
+      <span className="label">
+        <span className="n">{o.name}</span>
+        <span className="c"> (min {min})</span>
+      </span>
+      <div className="stepper">
+        <button disabled={node.n - step < min} onClick={() => { vibrate(); commit(node.n - step); }} aria-label={`Decrease by ${step}`}>−</button>
+        <input
+          className="num-input"
+          type="number"
+          inputMode="numeric"
+          step={step}
+          min={min}
+          value={text}
+          aria-label={o.name}
+          onChange={(e) => setText(e.target.value)}
+          onBlur={() => commit(Number(text))}
+          onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+        />
+        <button onClick={() => { vibrate(); commit(node.n + step); }} aria-label={`Increase by ${step}`}>+</button>
+      </div>
+    </div>
   );
 }

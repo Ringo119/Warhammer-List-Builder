@@ -135,3 +135,43 @@ describe('model counts', () => {
     expect(st.attachedTo(guard)).toEqual([cap]);
   });
 });
+
+describe('defaults', () => {
+  it('starts every datasheet at its minimum size with default wargear', () => {
+    const base = setup();
+    const st0 = new State(cat, base);
+    const units = st0.rootOptions().filter((o) => !o.hidden && o.def.kind === 'entry' && ['unit', 'model'].includes(o.def.type!));
+    expect(units.length).toBeGreaterThan(20);
+    const problems: string[] = [];
+    for (const o of units) {
+      const res = addSelection(cat, base, null, o.def);
+      const st = new State(cat, res.roster);
+      const node = st.byUid.get(res.uid)!;
+      const inUnit = (u?: string) => { for (let n = u ? st.byUid.get(u) : undefined; n; n = n.parent) if (n === node) return true; return false; };
+      for (const m of st.validate()) if (m.level === 'error' && inUnit(m.uid) && /minimum|must be selected/.test(m.text)) problems.push(m.text);
+    }
+    expect(problems).toEqual([]);
+  });
+
+  it('Witchseekers start at 4 models and Blade Champion with Vaultswords', () => {
+    let r = setup();
+    const ws = add(r, 'Witchseeker Squad');
+    const bc = add(ws.roster, 'Blade Champion');
+    const st = new State(cat, bc.roster);
+    const w = st.byUid.get(ws.uid)!;
+    expect(w.children.filter((c) => c.def.type === 'model').reduce((t, c) => t + c.n, 0)).toBe(4);
+    expect(st.byUid.get(bc.uid)!.children.map((c) => st.name(c))).toContain('Vaultswords');
+  });
+
+  it('points override starts at the battle size limit', () => {
+    const r = setup();
+    let st = new State(cat, r);
+    const bs = top(st, 'Battle Size');
+    const ov = st.options(bs).find((o) => o.name === 'Override points limit?')!;
+    const res = addSelection(cat, r, bs.uid, ov.def);
+    st = new State(cat, res.roster);
+    const pl = st.byUid.get(res.uid)!.children[0];
+    expect(pl.n).toBe(2000);
+    expect(st.limits().pointsLimit).toBe(2000);
+  });
+});

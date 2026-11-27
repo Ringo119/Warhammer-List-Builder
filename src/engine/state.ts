@@ -29,6 +29,7 @@ export class RNode {
 }
 
 interface Evaluated {
+  defaultAmount?: number;
   name: string;
   hidden: boolean;
   costs: Map<string, number>;
@@ -49,6 +50,8 @@ export interface Option {
   cost: number;
   /** detachment points cost */
   dp: number;
+  /** suggested starting number (e.g. the points limit of the chosen battle size) */
+  defaultAmount?: number;
   min: number;
   /** -1 = unlimited */
   max: number;
@@ -198,6 +201,7 @@ export class State {
       costs: new Map(d.costs.map((c: any) => [c.typeId, Number(c.value) || 0])),
       cons: new Map(d.constraints.map((c: any) => [c.id, Number(c.value)])),
       msgs: [],
+      defaultAmount: d.node.defaultAmount !== undefined ? Number(d.node.defaultAmount) : undefined,
     };
     if (this.evBusy.has(node)) return res;
     this.evBusy.add(node);
@@ -205,7 +209,8 @@ export class State {
       if (m.scope && m.scope !== 'self') return;
       if (m.affects) return;
       const f = m.field;
-      if (f === 'hidden') res.hidden = m.value === true || m.value === 'true';
+      if (f === 'defaultAmount') res.defaultAmount = Number(m.value);
+      else if (f === 'hidden') res.hidden = m.value === true || m.value === 'true';
       else if (f === 'name') {
         if (m.type === 'set') res.name = String(m.value);
         else if (m.type === 'append') res.name = `${res.name}${m.join ?? ' '}${m.value}`;
@@ -490,7 +495,7 @@ export class State {
         const ev = this.ev(nodes[0] ? this.virtualLike(nodes[0]) : ctx);
         const { min, max } = this.minMax(def, ctx);
         out.push({
-          def, name: ev.name, hidden: ev.hidden, cost: ev.costs.get(this.cat.ptsId) ?? 0, dp: ev.costs.get(this.cat.dpId) ?? 0, min, max,
+          def, name: ev.name, hidden: ev.hidden, cost: ev.costs.get(this.cat.ptsId) ?? 0, dp: ev.costs.get(this.cat.dpId) ?? 0, defaultAmount: ev.defaultAmount, min, max,
           count: nodes.reduce((a, n) => a + n.n, 0), nodes, gs,
         });
       }
