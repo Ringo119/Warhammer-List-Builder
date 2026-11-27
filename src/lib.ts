@@ -7,7 +7,7 @@ import type { FactionData, Roster } from './engine/types';
 export interface FactionIndex {
   generatedAt: string;
   sources: { bsdata: { repo: string; commit: string }; wahapedia: { note: string; lastUpdate: string } };
-  factions: { key: string; name: string; alliance: string; file: string; size: number }[];
+  factions: { key: string; name: string; alliance: string; accent?: string; file: string; size: number }[];
 }
 
 const base = import.meta.env.BASE_URL;
@@ -21,21 +21,58 @@ export function loadIndex() {
 }
 
 const catalogs = new Map<string, Promise<Catalog>>();
+const files = new Map<string, Promise<unknown>>();
+function getJson<T>(file: string): Promise<T> {
+  if (!files.has(file)) {
+    files.set(
+      file,
+      fetch(`${base}data/${file}`).then((r) => {
+        if (!r.ok) throw new Error(`Could not load ${file} (${r.status}). Are you offline? Open this faction once while online to save it.`);
+        return r.json();
+      }),
+    );
+    files.get(file)!.catch(() => files.delete(file));
+  }
+  return files.get(file) as Promise<T>;
+}
+
+type FactionFile = Omit<FactionData, 'gameSystem' | 'catalogues'> & { catalogueFiles: string[] };
+
 export function loadCatalog(key: string) {
   if (!catalogs.has(key)) {
-    catalogs.set(
-      key,
-      loadIndex()
-        .then((idx) => {
-          const f = idx.factions.find((x) => x.key === key);
-          if (!f) throw new Error(`Unknown faction ${key}`);
-          return fetch(`${base}data/${f.file}`);
-        })
-        .then((r) => r.json() as Promise<FactionData>)
-        .then((d) => new Catalog(d)),
-    );
+    const p = loadIndex()
+      .then((idx) => {
+        const f = idx.factions.find((x) => x.key === key);
+        if (!f) throw new Error(`Unknown faction ${key}`);
+        return getJson<FactionFile>(f.file);
+      })
+      .then(async (fac) => {
+        const [gameSystem, ...catalogues] = await Promise.all([getJson('gst.json'), ...fac.catalogueFiles.map((c) => getJson(c))]);
+        return new Catalog({ ...fac, gameSystem, catalogues } as FactionData);
+      });
+    p.catch(() => catalogs.delete(key));
+    catalogs.set(key, p);
   }
   return catalogs.get(key)!;
+}
+
+/** Faction accent colour (CSS) */
+export function useAccent(faction: string | undefined) {
+  const idx = useAsync(loadIndex, []).value;
+  const accent = idx?.factions.find((f) => f.key === faction)?.accent;
+  useEffect(() => {
+    if (!accent) return;
+    const root = document.documentElement.style;
+    root.setProperty('--accent', accent);
+    root.setProperty('--accent-soft', `${accent}24`);
+    root.setProperty('--accent-ink', inkFor(accent));
+    return () => {
+      root.removeProperty('--accent');
+      root.removeProperty('--accent-soft');
+      root.removeProperty('--accent-ink');
+    };
+  }, [accent]);
+  return accent;
 }
 
 export function useAsync<T>(fn: () => Promise<T>, deps: unknown[]) {
@@ -219,4 +256,19 @@ export function vibrate() {
   } catch {
     /* ignore */
   }
+}
+
+/** dark or light text for a coloured background */
+export function inkFor(hex: string) {
+  const n = parseInt(hex.slice(1), 16);
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  const L = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return L > 0.22 ? '#14110a' : '#ffffff';
+}
+
+export function accentStyle(accent?: string): Record<string, string> | undefined {
+  return accent ? { '--accent': accent, '--accent-soft': `${accent}24`, '--accent-ink': inkFor(accent) } : undefined;
 }

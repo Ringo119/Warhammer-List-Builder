@@ -167,7 +167,7 @@ function Entry({ ctx, parent, o, groupTotal, groupMax }: { ctx: Ctx; parent: RNo
         >
           <span className="check" />
           <span className="label">
-            <span className="n">{o.name}</span>
+            <span className="n">{!on && /^Show /.test(o.def.name) ? o.def.name : o.name}</span>
           </span>
           <span className="cost">{costLabel(o)}</span>
         </button>

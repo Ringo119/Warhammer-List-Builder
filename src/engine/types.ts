@@ -29,6 +29,8 @@ export interface FactionData {
   key: string;
   name: string;
   primaryCatalogueId: string;
+  /** linked catalogues whose army options take precedence (e.g. Space Marines for chapters) */
+  preferCatalogueIds?: string[];
   gameSystem: BsNode;
   catalogues: BsNode[];
   rules: {

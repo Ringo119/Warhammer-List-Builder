@@ -3,7 +3,7 @@ import { State, type RNode, type Option } from '../engine/state';
 import type { Roster } from '../engine/types';
 import { addSelection, duplicateSelection, removeSelection, setAssociation, clone, uid } from '../engine/ops';
 import {
-  back, battleSize, detachments, fmt, go, isConfig, loadCatalog, sectionFor, sectionForCategory, SECTION_ORDER, store, unitSummary, useAsync, useRosters, vibrate,
+  back, battleSize, useAccent, detachments, fmt, go, isConfig, loadCatalog, sectionFor, sectionForCategory, SECTION_ORDER, store, unitSummary, useAsync, useRosters, vibrate,
 } from '../lib';
 import { exportText, toShareCode } from '../export';
 import { AppBar, Loading, RoleIcon, Sheet, toast } from './common';
@@ -15,6 +15,7 @@ import * as I from './icons';
 function useArmy(id: string) {
   const rosters = useRosters();
   const roster = rosters.find((r) => r.id === id);
+  useAccent(roster?.faction);
   const catQ = useAsync(() => (roster ? loadCatalog(roster.faction) : Promise.reject(new Error('Army not found'))), [roster?.faction]);
   const st = useMemo(() => (catQ.value && roster ? new State(catQ.value, roster) : undefined), [catQ.value, roster]);
   const update = useCallback((r: Roster) => store.put({ ...r, updated: Date.now() }), []);

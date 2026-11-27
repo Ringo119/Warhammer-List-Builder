@@ -201,7 +201,7 @@ export class State {
       costs: new Map(d.costs.map((c: any) => [c.typeId, Number(c.value) || 0])),
       cons: new Map(d.constraints.map((c: any) => [c.id, Number(c.value)])),
       msgs: [],
-      defaultAmount: d.node.defaultAmount !== undefined ? Number(d.node.defaultAmount) : undefined,
+      defaultAmount: Number.isFinite(Number(d.node.defaultAmount)) && d.node.defaultAmount !== '' && d.node.defaultAmount !== undefined ? Number(d.node.defaultAmount) : undefined,
     };
     if (this.evBusy.has(node)) return res;
     this.evBusy.add(node);
@@ -209,7 +209,7 @@ export class State {
       if (m.scope && m.scope !== 'self') return;
       if (m.affects) return;
       const f = m.field;
-      if (f === 'defaultAmount') res.defaultAmount = Number(m.value);
+      if (f === 'defaultAmount') res.defaultAmount = Number.isFinite(Number(m.value)) ? Number(m.value) : res.defaultAmount;
       else if (f === 'hidden') res.hidden = m.value === true || m.value === 'true';
       else if (f === 'name') {
         if (m.type === 'set') res.name = String(m.value);

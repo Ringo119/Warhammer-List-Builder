@@ -1,9 +1,296 @@
 [
   {
+    "key": "adepta-sororitas",
+    "name": "Adepta Sororitas",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Adepta Sororitas.json",
+    "wahapediaFaction": "AS",
+    "accent": "#c8414b"
+  },
+  {
     "key": "adeptus-custodes",
     "name": "Adeptus Custodes",
     "alliance": "Imperium",
     "catalogue": "Imperium - Adeptus Custodes.json",
-    "wahapediaFaction": "AC"
+    "wahapediaFaction": "AC",
+    "accent": "#c9a54b"
+  },
+  {
+    "key": "adeptus-mechanicus",
+    "name": "Adeptus Mechanicus",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Adeptus Mechanicus.json",
+    "wahapediaFaction": "AdM",
+    "accent": "#c24a37"
+  },
+  {
+    "key": "astra-militarum",
+    "name": "Astra Militarum",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Astra Militarum.json",
+    "wahapediaFaction": "AM",
+    "accent": "#8c9a4e"
+  },
+  {
+    "key": "black-templars",
+    "name": "Black Templars",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Black Templars.json",
+    "wahapediaFaction": "SM",
+    "accent": "#d9d9d9",
+    "preferCatalogues": [
+      "Imperium - Space Marines.json"
+    ]
+  },
+  {
+    "key": "blood-angels",
+    "name": "Blood Angels",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Blood Angels.json",
+    "wahapediaFaction": "SM",
+    "accent": "#c8323c",
+    "preferCatalogues": [
+      "Imperium - Space Marines.json"
+    ]
+  },
+  {
+    "key": "dark-angels",
+    "name": "Dark Angels",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Dark Angels.json",
+    "wahapediaFaction": "SM",
+    "accent": "#3f9a5a",
+    "preferCatalogues": [
+      "Imperium - Space Marines.json"
+    ]
+  },
+  {
+    "key": "grey-knights",
+    "name": "Grey Knights",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Grey Knights.json",
+    "wahapediaFaction": "GK",
+    "accent": "#9fb3c8"
+  },
+  {
+    "key": "imperial-agents",
+    "name": "Imperial Agents",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Agents of the Imperium.json",
+    "wahapediaFaction": "AoI",
+    "accent": "#b07a3c"
+  },
+  {
+    "key": "imperial-fists",
+    "name": "Imperial Fists",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Imperial Fists.json",
+    "wahapediaFaction": "SM",
+    "accent": "#e5c13a",
+    "preferCatalogues": [
+      "Imperium - Space Marines.json"
+    ]
+  },
+  {
+    "key": "imperial-knights",
+    "name": "Imperial Knights",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Imperial Knights.json",
+    "wahapediaFaction": "QI",
+    "accent": "#3f7fc8"
+  },
+  {
+    "key": "iron-hands",
+    "name": "Iron Hands",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Iron Hands.json",
+    "wahapediaFaction": "SM",
+    "accent": "#a9b0b8",
+    "preferCatalogues": [
+      "Imperium - Space Marines.json"
+    ]
+  },
+  {
+    "key": "raven-guard",
+    "name": "Raven Guard",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Raven Guard.json",
+    "wahapediaFaction": "SM",
+    "accent": "#b9bfc7",
+    "preferCatalogues": [
+      "Imperium - Space Marines.json"
+    ]
+  },
+  {
+    "key": "salamanders",
+    "name": "Salamanders",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Salamanders.json",
+    "wahapediaFaction": "SM",
+    "accent": "#3faa4f",
+    "preferCatalogues": [
+      "Imperium - Space Marines.json"
+    ]
+  },
+  {
+    "key": "space-marines",
+    "name": "Space Marines",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Space Marines.json",
+    "wahapediaFaction": "SM",
+    "accent": "#3f6fd1"
+  },
+  {
+    "key": "space-wolves",
+    "name": "Space Wolves",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Space Wolves.json",
+    "wahapediaFaction": "SM",
+    "accent": "#8fb0c8",
+    "preferCatalogues": [
+      "Imperium - Space Marines.json"
+    ]
+  },
+  {
+    "key": "ultramarines",
+    "name": "Ultramarines",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - Ultramarines.json",
+    "wahapediaFaction": "SM",
+    "accent": "#3f6fd1",
+    "preferCatalogues": [
+      "Imperium - Space Marines.json"
+    ]
+  },
+  {
+    "key": "white-scars",
+    "name": "White Scars",
+    "alliance": "Imperium",
+    "catalogue": "Imperium - White Scars.json",
+    "wahapediaFaction": "SM",
+    "accent": "#d8d3c4",
+    "preferCatalogues": [
+      "Imperium - Space Marines.json"
+    ]
+  },
+  {
+    "key": "chaos-daemons",
+    "name": "Chaos Daemons",
+    "alliance": "Chaos",
+    "catalogue": "Chaos - Chaos Daemons.json",
+    "wahapediaFaction": "CD",
+    "accent": "#c2405a"
+  },
+  {
+    "key": "chaos-knights",
+    "name": "Chaos Knights",
+    "alliance": "Chaos",
+    "catalogue": "Chaos - Chaos Knights.json",
+    "wahapediaFaction": "QT",
+    "accent": "#a8423a"
+  },
+  {
+    "key": "chaos-space-marines",
+    "name": "Chaos Space Marines",
+    "alliance": "Chaos",
+    "catalogue": "Chaos - Chaos Space Marines.json",
+    "wahapediaFaction": "CSM",
+    "accent": "#c0392b"
+  },
+  {
+    "key": "death-guard",
+    "name": "Death Guard",
+    "alliance": "Chaos",
+    "catalogue": "Chaos - Death Guard.json",
+    "wahapediaFaction": "DG",
+    "accent": "#9aa84a"
+  },
+  {
+    "key": "emperors-children",
+    "name": "Emperor's Children",
+    "alliance": "Chaos",
+    "catalogue": "Chaos - Emperor's Children.json",
+    "wahapediaFaction": "EC",
+    "accent": "#c45ab3"
+  },
+  {
+    "key": "thousand-sons",
+    "name": "Thousand Sons",
+    "alliance": "Chaos",
+    "catalogue": "Chaos - Thousand Sons.json",
+    "wahapediaFaction": "TS",
+    "accent": "#3a9fc0"
+  },
+  {
+    "key": "world-eaters",
+    "name": "World Eaters",
+    "alliance": "Chaos",
+    "catalogue": "Chaos - World Eaters.json",
+    "wahapediaFaction": "WE",
+    "accent": "#c8323c"
+  },
+  {
+    "key": "aeldari",
+    "name": "Aeldari",
+    "alliance": "Xenos",
+    "catalogue": "Aeldari - Craftworlds.json",
+    "wahapediaFaction": "AE",
+    "accent": "#3fb3a8"
+  },
+  {
+    "key": "drukhari",
+    "name": "Drukhari",
+    "alliance": "Xenos",
+    "catalogue": "Aeldari - Drukhari.json",
+    "wahapediaFaction": "DRU",
+    "accent": "#8a5cc0"
+  },
+  {
+    "key": "genestealer-cults",
+    "name": "Genestealer Cults",
+    "alliance": "Xenos",
+    "catalogue": "Genestealer Cults.json",
+    "wahapediaFaction": "GC",
+    "accent": "#9b6bc4"
+  },
+  {
+    "key": "leagues-of-votann",
+    "name": "Leagues of Votann",
+    "alliance": "Xenos",
+    "catalogue": "Leagues of Votann.json",
+    "wahapediaFaction": "LoV",
+    "accent": "#d08a3a"
+  },
+  {
+    "key": "necrons",
+    "name": "Necrons",
+    "alliance": "Xenos",
+    "catalogue": "Necrons.json",
+    "wahapediaFaction": "NEC",
+    "accent": "#4cc36a"
+  },
+  {
+    "key": "orks",
+    "name": "Orks",
+    "alliance": "Xenos",
+    "catalogue": "Orks.json",
+    "wahapediaFaction": "ORK",
+    "accent": "#6aa83a"
+  },
+  {
+    "key": "tau-empire",
+    "name": "T'au Empire",
+    "alliance": "Xenos",
+    "catalogue": "T'au Empire.json",
+    "wahapediaFaction": "TAU",
+    "accent": "#d39a4a"
+  },
+  {
+    "key": "tyranids",
+    "name": "Tyranids",
+    "alliance": "Xenos",
+    "catalogue": "Tyranids.json",
+    "wahapediaFaction": "TYR",
+    "accent": "#b0559b"
   }
 ]

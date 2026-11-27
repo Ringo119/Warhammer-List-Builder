@@ -1,12 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import fs from 'node:fs';
-import { Catalog } from '../catalog';
+import { loadFaction } from './load';
 import { State, type Option } from '../state';
 import { newRoster, addSelection, chooseInGroup, setAssociation, removeSelection } from '../ops';
 import type { Roster } from '../types';
 
-const data = JSON.parse(fs.readFileSync('public/data/adeptus-custodes.json', 'utf8'));
-const cat = new Catalog(data);
+const cat = loadFaction('adeptus-custodes');
 
 const flat = (opts: Option[]): Option[] => opts.flatMap((o) => (o.children ? [o, ...flat(o.children)] : [o]));
 const top = (st: State, name: string) => st.topLevel().find((n) => st.name(n) === name)!;

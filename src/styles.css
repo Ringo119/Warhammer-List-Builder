@@ -175,7 +175,7 @@ textarea.input { min-height: 220px; font-family: ui-monospace, Menlo, Consolas, 
 
 /* ------------------------------------------------------------ datasheet */
 .ds { padding: 0 0 12px; }
-.ds-head { padding: 16px; background: linear-gradient(135deg, #2a2416 0%, #191b20 55%); border-bottom: 2px solid var(--accent); }
+.ds-head { padding: 16px; background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 22%, #191b20) 0%, #191b20 55%); border-bottom: 2px solid var(--accent); }
 .ds-head h2 { font-size: 30px; text-transform: uppercase; line-height: 1.05; }
 .ds-head .legend { color: var(--muted); font-size: 13px; font-style: italic; margin-top: 8px; }
 .stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 12px 16px 4px; }
@@ -260,7 +260,7 @@ textarea.input { min-height: 220px; font-family: ui-monospace, Menlo, Consolas, 
 .empty svg { width: 64px; height: 64px; color: var(--accent); opacity: 0.7; margin-bottom: 12px; }
 .army-card { background: var(--card); border-radius: 14px; padding: 14px; display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; position: relative; overflow: hidden; }
 .army-card::after { content: ''; position: absolute; right: -40px; top: -40px; width: 140px; height: 140px; background: radial-gradient(circle, var(--accent-soft), transparent 70%); pointer-events: none; }
-.army-card .crest { width: 52px; height: 52px; border-radius: 12px; background: #2a2416; border: 1px solid #5b4a22; color: var(--accent); display: grid; place-items: center; flex: none; }
+.army-card .crest { width: 52px; height: 52px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 16%, #1c2027); border: 1px solid color-mix(in srgb, var(--accent) 45%, #1c2027); color: var(--accent); display: grid; place-items: center; flex: none; }
 .army-card .crest svg { width: 30px; height: 30px; }
 .army-card .main { flex: 1; min-width: 0; }
 .army-card .nm { font-family: var(--head); font-size: 21px; font-weight: 700; text-transform: uppercase; line-height: 1.1; overflow-wrap: anywhere; }
@@ -268,7 +268,7 @@ textarea.input { min-height: 220px; font-family: ui-monospace, Menlo, Consolas, 
 .army-card .det { font-size: 12px; color: var(--muted); }
 .army-card .p { text-align: right; font-family: var(--head); font-weight: 700; font-size: 18px; }
 .army-card .p small { display: block; font-size: 12px; color: var(--muted); font-family: var(--body); font-weight: 500; }
-.det-card { margin: 12px 12px 0; padding: 12px 14px; border-radius: var(--radius); background: linear-gradient(135deg, #2a2416, #1c2027 60%); border: 1px solid #4a3d1e; width: calc(100% - 24px); text-align: left; display: flex; align-items: center; gap: 12px; }
+.det-card { margin: 12px 12px 0; padding: 12px 14px; border-radius: var(--radius); background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 18%, #1c2027), #1c2027 60%); border: 1px solid color-mix(in srgb, var(--accent) 40%, #1c2027); width: calc(100% - 24px); text-align: left; display: flex; align-items: center; gap: 12px; }
 .det-card .main { flex: 1; min-width: 0; }
 .det-card .k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); }
 .det-card .v { font-family: var(--head); font-size: 19px; font-weight: 700; text-transform: uppercase; line-height: 1.15; }
