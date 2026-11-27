@@ -72,13 +72,16 @@ export class Catalog {
       const push = (d: Def) => {
         if (!d || seenTarget.has(d.targetId)) return;
         // army configuration entries of imported (allied) catalogues do not apply to this army
-        if (imported && d.categoryLinks.some((c: any) => c.primary && configCats.has(c.targetId))) return;
+        // (only when this army already has an option of the same name, e.g. allies' own Detachment entry)
+        if (imported && d.categoryLinks.some((c: any) => c.primary && configCats.has(c.targetId)) && roots.some((r) => r.name === d.name)) return;
         seenTarget.add(d.targetId);
         roots.push(d);
       };
       for (const e of arr(doc.selectionEntries)) push(this.def(e, 'entry'));
       for (const l of arr(doc.entryLinks)) push(this.def(l, l.type === 'selectionEntryGroup' ? 'group' : 'entry'));
-      for (const cl of arr(doc.catalogueLinks)) {
+      const prefer = data.preferCatalogueIds ?? [];
+      const links = [...arr(doc.catalogueLinks)].sort((a: any, b: any) => Number(prefer.includes(b.targetId)) - Number(prefer.includes(a.targetId)));
+      for (const cl of links) {
         if (cl.importRootEntries) addRoots(data.catalogues.find((c) => c.id === cl.targetId), true);
       }
     };
@@ -154,13 +157,15 @@ export class Catalog {
 
   children(d: Def): Def[] {
     if (d._children) return d._children;
-    const t = d.node;
     const out: Def[] = [];
-    for (const e of arr(t.selectionEntries)) out.push(this.def(e, 'entry'));
-    for (const g of arr(t.selectionEntryGroups)) out.push(this.def(g, 'group'));
-    for (const l of arr(t.entryLinks)) {
-      const c = this.def(l, l.type === 'selectionEntryGroup' ? 'group' : 'entry');
-      if (c) out.push(c);
+    // children come from the entry itself and, for entry links, from the link (links can add options)
+    for (const t of [d.node, d.link].filter(Boolean)) {
+      for (const e of arr(t.selectionEntries)) out.push(this.def(e, 'entry'));
+      for (const g of arr(t.selectionEntryGroups)) out.push(this.def(g, 'group'));
+      for (const l of arr(t.entryLinks)) {
+        const c = this.def(l, l.type === 'selectionEntryGroup' ? 'group' : 'entry');
+        if (c) out.push(c);
+      }
     }
     d._children = out.filter(Boolean).sort(sortDefs);
     return d._children;

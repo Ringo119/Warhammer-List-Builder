@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-27T22:03:28.403Z",
+  "generatedAt": "2026-11-27T22:48:33.434Z",
   "sources": {
     "bsdata": {
       "repo": "BSData wh40k-11e (via mirror)",
@@ -12,11 +12,268 @@
   },
   "factions": [
     {
+      "key": "adepta-sororitas",
+      "name": "Adepta Sororitas",
+      "alliance": "Imperium",
+      "accent": "#c8414b",
+      "file": "adepta-sororitas.json",
+      "size": 2457456
+    },
+    {
       "key": "adeptus-custodes",
       "name": "Adeptus Custodes",
       "alliance": "Imperium",
+      "accent": "#c9a54b",
       "file": "adeptus-custodes.json",
-      "size": 2055650
+      "size": 2318127
+    },
+    {
+      "key": "adeptus-mechanicus",
+      "name": "Adeptus Mechanicus",
+      "alliance": "Imperium",
+      "accent": "#c24a37",
+      "file": "adeptus-mechanicus.json",
+      "size": 2511302
+    },
+    {
+      "key": "astra-militarum",
+      "name": "Astra Militarum",
+      "alliance": "Imperium",
+      "accent": "#8c9a4e",
+      "file": "astra-militarum.json",
+      "size": 3790469
+    },
+    {
+      "key": "black-templars",
+      "name": "Black Templars",
+      "alliance": "Imperium",
+      "accent": "#d9d9d9",
+      "file": "black-templars.json",
+      "size": 4837207
+    },
+    {
+      "key": "blood-angels",
+      "name": "Blood Angels",
+      "alliance": "Imperium",
+      "accent": "#c8323c",
+      "file": "blood-angels.json",
+      "size": 4961505
+    },
+    {
+      "key": "dark-angels",
+      "name": "Dark Angels",
+      "alliance": "Imperium",
+      "accent": "#3f9a5a",
+      "file": "dark-angels.json",
+      "size": 4911943
+    },
+    {
+      "key": "grey-knights",
+      "name": "Grey Knights",
+      "alliance": "Imperium",
+      "accent": "#9fb3c8",
+      "file": "grey-knights.json",
+      "size": 2376776
+    },
+    {
+      "key": "imperial-agents",
+      "name": "Imperial Agents",
+      "alliance": "Imperium",
+      "accent": "#b07a3c",
+      "file": "imperial-agents.json",
+      "size": 1817131
+    },
+    {
+      "key": "imperial-fists",
+      "name": "Imperial Fists",
+      "alliance": "Imperium",
+      "accent": "#e5c13a",
+      "file": "imperial-fists.json",
+      "size": 4736681
+    },
+    {
+      "key": "imperial-knights",
+      "name": "Imperial Knights",
+      "alliance": "Imperium",
+      "accent": "#3f7fc8",
+      "file": "imperial-knights.json",
+      "size": 2488983
+    },
+    {
+      "key": "iron-hands",
+      "name": "Iron Hands",
+      "alliance": "Imperium",
+      "accent": "#a9b0b8",
+      "file": "iron-hands.json",
+      "size": 4731250
+    },
+    {
+      "key": "raven-guard",
+      "name": "Raven Guard",
+      "alliance": "Imperium",
+      "accent": "#b9bfc7",
+      "file": "raven-guard.json",
+      "size": 4730049
+    },
+    {
+      "key": "salamanders",
+      "name": "Salamanders",
+      "alliance": "Imperium",
+      "accent": "#3faa4f",
+      "file": "salamanders.json",
+      "size": 4731950
+    },
+    {
+      "key": "space-marines",
+      "name": "Space Marines",
+      "alliance": "Imperium",
+      "accent": "#3f6fd1",
+      "file": "space-marines.json",
+      "size": 4716389
+    },
+    {
+      "key": "space-wolves",
+      "name": "Space Wolves",
+      "alliance": "Imperium",
+      "accent": "#8fb0c8",
+      "file": "space-wolves.json",
+      "size": 5140744
+    },
+    {
+      "key": "ultramarines",
+      "name": "Ultramarines",
+      "alliance": "Imperium",
+      "accent": "#3f6fd1",
+      "file": "ultramarines.json",
+      "size": 4864384
+    },
+    {
+      "key": "white-scars",
+      "name": "White Scars",
+      "alliance": "Imperium",
+      "accent": "#d8d3c4",
+      "file": "white-scars.json",
+      "size": 4733990
+    },
+    {
+      "key": "chaos-daemons",
+      "name": "Chaos Daemons",
+      "alliance": "Chaos",
+      "accent": "#c2405a",
+      "file": "chaos-daemons.json",
+      "size": 3651908
+    },
+    {
+      "key": "chaos-knights",
+      "name": "Chaos Knights",
+      "alliance": "Chaos",
+      "accent": "#a8423a",
+      "file": "chaos-knights.json",
+      "size": 3592428
+    },
+    {
+      "key": "chaos-space-marines",
+      "name": "Chaos Space Marines",
+      "alliance": "Chaos",
+      "accent": "#c0392b",
+      "file": "chaos-space-marines.json",
+      "size": 3656146
+    },
+    {
+      "key": "death-guard",
+      "name": "Death Guard",
+      "alliance": "Chaos",
+      "accent": "#9aa84a",
+      "file": "death-guard.json",
+      "size": 2738752
+    },
+    {
+      "key": "emperors-children",
+      "name": "Emperor's Children",
+      "alliance": "Chaos",
+      "accent": "#c45ab3",
+      "file": "emperors-children.json",
+      "size": 2452195
+    },
+    {
+      "key": "thousand-sons",
+      "name": "Thousand Sons",
+      "alliance": "Chaos",
+      "accent": "#3a9fc0",
+      "file": "thousand-sons.json",
+      "size": 2663818
+    },
+    {
+      "key": "world-eaters",
+      "name": "World Eaters",
+      "alliance": "Chaos",
+      "accent": "#c8323c",
+      "file": "world-eaters.json",
+      "size": 2577361
+    },
+    {
+      "key": "aeldari",
+      "name": "Aeldari",
+      "alliance": "Xenos",
+      "accent": "#3fb3a8",
+      "file": "aeldari.json",
+      "size": 2607230
+    },
+    {
+      "key": "drukhari",
+      "name": "Drukhari",
+      "alliance": "Xenos",
+      "accent": "#8a5cc0",
+      "file": "drukhari.json",
+      "size": 2549391
+    },
+    {
+      "key": "genestealer-cults",
+      "name": "Genestealer Cults",
+      "alliance": "Xenos",
+      "accent": "#9b6bc4",
+      "file": "genestealer-cults.json",
+      "size": 3099416
+    },
+    {
+      "key": "leagues-of-votann",
+      "name": "Leagues of Votann",
+      "alliance": "Xenos",
+      "accent": "#d08a3a",
+      "file": "leagues-of-votann.json",
+      "size": 838728
+    },
+    {
+      "key": "necrons",
+      "name": "Necrons",
+      "alliance": "Xenos",
+      "accent": "#4cc36a",
+      "file": "necrons.json",
+      "size": 1102910
+    },
+    {
+      "key": "orks",
+      "name": "Orks",
+      "alliance": "Xenos",
+      "accent": "#6aa83a",
+      "file": "orks.json",
+      "size": 1342108
+    },
+    {
+      "key": "tau-empire",
+      "name": "T'au Empire",
+      "alliance": "Xenos",
+      "accent": "#d39a4a",
+      "file": "tau-empire.json",
+      "size": 1290468
+    },
+    {
+      "key": "tyranids",
+      "name": "Tyranids",
+      "alliance": "Xenos",
+      "accent": "#b0559b",
+      "file": "tyranids.json",
+      "size": 1154093
     }
   ]
 }

@@ -25,8 +25,8 @@ function childList(r: Roster, parentUid: string | null): Sel[] {
 }
 
 /** Add required child selections (min constraints, group defaults) to a freshly added selection. */
-function fillDefaults(cat: Catalog, r: Roster, selUid: string, depth = 0) {
-  if (depth > 8) return;
+function fillDefaults(cat: Catalog, r: Roster, selUid: string, depth = 0, pass = 0) {
+  if (depth > 9) return;
   const st = new State(cat, r);
   const node = st.byUid.get(selUid);
   if (!node) return;
@@ -55,7 +55,8 @@ function fillDefaults(cat: Catalog, r: Roster, selUid: string, depth = 0) {
           if (pick) push(pick, need);
         }
       } else {
-        const want = Math.max(o.min, o.defaultAmount ?? 0);
+        const def = Number.isFinite(o.defaultAmount) ? (o.defaultAmount as number) : 0;
+        const want = o.min > 0 ? Math.max(o.min, def) : 0;
         const need = want - o.count - (addedCount.get(o.def.id) ?? 0);
         if (need > 0) push(o, need);
       }
@@ -63,6 +64,8 @@ function fillDefaults(cat: Catalog, r: Roster, selUid: string, depth = 0) {
   };
   visit(st.options(node));
   for (const a of added) fillDefaults(cat, r, a, depth + 1);
+  // selections can unlock further required options (e.g. a unit leader unlocking its squad models)
+  if (added.length && pass < 4) fillDefaults(cat, r, selUid, depth, pass + 1);
 }
 
 function flatEntries(opts: Option[]): Option[] {
@@ -74,6 +77,16 @@ export function addSelection(cat: Catalog, roster: Roster, parentUid: string | n
   const s: Sel = { uid: uid(), id: def.id, n, gs: gs.length ? gs : undefined, ch: [] };
   childList(r, parentUid).push(s);
   fillDefaults(cat, r, s.uid);
+  // choices made deeper in the unit can make other options required: sweep the whole unit until stable
+  const count = (x: Sel): number => 1 + x.ch.reduce((t, c) => t + count(c), 0);
+  for (let i = 0; i < 3; i++) {
+    const before = count(s);
+    const all: string[] = [];
+    const collect = (x: Sel) => { all.push(x.uid); x.ch.forEach(collect); };
+    collect(s);
+    for (const u of all) fillDefaults(cat, r, u, 8);
+    if (count(s) === before) break;
+  }
   r.updated = Date.now();
   return { roster: r, uid: s.uid };
 }
@@ -167,6 +180,30 @@ export function newRoster(cat: Catalog, name: string, faction: string): Roster {
     );
     if (need) r = addSelection(cat, r, null, o.def).roster;
   }
+  return enableOwnContent(cat, r);
+}
+
+/**
+ * Some armies keep their own units behind "Show ..." toggles (e.g. Chaos Daemons: "Show Khorne Daemons").
+ * Switch on the toggles that belong to this army so its units are listed straight away.
+ */
+function enableOwnContent(cat: Catalog, roster: Roster): Roster {
+  const generic = new Set(['chaos', 'imperial', 'imperium', 'show', 'the', 'of']);
+  const words = new Set(cat.data.name.toLowerCase().split(/[^a-z]+/).filter((w) => w && !generic.has(w)));
+  let r = roster;
+  let st = new State(cat, r);
+  const sh = st.rootOptions().find((o) => o.name === 'Show/Hide Options' && !o.hidden);
+  if (!sh) return r;
+  const toggles = (n: RNode) =>
+    flatEntries(st.options(n)).filter(
+      (o) => !o.hidden && o.count === 0 && /^Show /.test(o.def.name) && o.def.name.toLowerCase().split(/[^a-z]+/).some((w) => words.has(w)),
+    );
+  const probe = addSelection(cat, r, null, sh.def);
+  st = new State(cat, probe.roster);
+  const list = toggles(st.byUid.get(probe.uid)!);
+  if (!list.length) return r;
+  r = probe.roster;
+  for (const o of list) r = addSelection(cat, r, probe.uid, o.def, o.gs).roster;
   return r;
 }
 

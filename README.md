@@ -4,7 +4,9 @@ A mobile-first army list builder for **Warhammer 40,000 11th edition**, modelled
 
 > Unofficial fan-made tool, not affiliated with or endorsed by Games Workshop.
 
-Currently included: **Adeptus Custodes** (more factions will follow once Custodes is confirmed working).
+Includes every 11th edition faction: all Imperium armies (including each Space Marine chapter), all Chaos armies, and all Xenos armies (33 in total). Each army is shown in its own colour.
+
+Faction data downloads the first time you open that faction and is then available offline; the app itself is fully cached on install.
 
 ## Features
 
@@ -31,7 +33,9 @@ npm run fetch-sources   # clones the data sources into .sources/
 npm run build-data      # writes public/data/*.json
 ```
 
-Factions are configured in `scripts/factions.json`.
+Factions are configured in `scripts/factions.json` (catalogue, Wahapedia faction id, colour). Catalogues shared between factions (e.g. Space Marines for every chapter) are written once to `public/data/cat/`.
+
+`npm test` includes a sweep that builds a list in every faction with every datasheet and fails if a unit starts with a missing required selection.
 
 ## Development
 

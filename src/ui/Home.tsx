@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { go, loadCatalog, loadIndex, store, useAsync, useRosters, fmt, detachments, battleSize, back } from '../lib';
+import { accentStyle, useAccent, go, loadCatalog, loadIndex, store, useAsync, useRosters, fmt, detachments, battleSize, back } from '../lib';
 import { State } from '../engine/state';
 import { chooseInGroup, newRoster, clone, uid } from '../engine/ops';
 import type { Roster } from '../engine/types';
@@ -83,6 +83,7 @@ export function Home() {
 
 function ArmyCard({ r, onMenu }: { r: Roster; onMenu: () => void }) {
   const cat = useAsync(() => loadCatalog(r.faction), [r.faction]).value;
+  const accent = useAsync(loadIndex, []).value?.factions.find((f) => f.key === r.faction)?.accent;
   const info = useMemo(() => {
     if (!cat) return undefined;
     const st = new State(cat, r);
@@ -90,7 +91,7 @@ function ArmyCard({ r, onMenu }: { r: Roster; onMenu: () => void }) {
     return { lim, dets: detachments(st).filter((d) => d.dp > 0).map((d) => d.name), bs: battleSize(st), errors: st.validate().filter((m) => m.level === 'error').length };
   }, [cat, r]);
   return (
-    <div className="army-card" role="button" tabIndex={0} onClick={() => go(`army/${r.id}`)}>
+    <div className="army-card" role="button" tabIndex={0} style={accentStyle(accent)} onClick={() => go(`army/${r.id}`)}>
       <div className="crest">
         <Crest />
       </div>
@@ -138,7 +139,7 @@ export function NewArmy() {
               <div className="section-h">{a}</div>
               <div className="list">
                 {idx.value!.factions.filter((f) => f.alliance === a).map((f) => (
-                  <button className="row" key={f.key} onClick={() => setFaction(f.key)}>
+                  <button className="row" key={f.key} style={accentStyle(f.accent)} onClick={() => setFaction(f.key)}>
                     <div className="thumb"><Crest /></div>
                     <div className="main"><div className="name">{f.name}</div></div>
                     <IconChevronSmall />
@@ -147,8 +148,7 @@ export function NewArmy() {
               </div>
             </div>
           ))}
-          <p className="footer-note">More factions will be added once Adeptus Custodes is confirmed working.</p>
-        </main>
+                  </main>
       </>
     );
   }
@@ -159,6 +159,7 @@ const IconChevronSmall = () => <span style={{ color: 'var(--faint)', width: 24, 
 
 function NewArmyForm({ faction, onBack }: { faction: string; onBack: () => void }) {
   const catQ = useAsync(() => loadCatalog(faction), [faction]);
+  useAccent(faction);
   const cat = catQ.value;
   const [name, setName] = useState('');
   const [size, setSize] = useState<string | null>(null);

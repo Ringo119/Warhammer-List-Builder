@@ -144,6 +144,30 @@ const index = {
   factions: [],
 };
 
+// prune once over everything so catalogue files can be shared between factions
+const prunedIds = new Set();
+collectPrunedIds(gstRaw, keepCostNames, prunedIds);
+for (const { cat } of catById.values()) collectPrunedIds(cat, keepCostNames, prunedIds);
+const ctx = { prunedIds, dropCost };
+
+// clean previous output
+for (const f of fs.readdirSync(OUT)) if (f.endsWith('.json')) fs.rmSync(path.join(OUT, f));
+fs.rmSync(path.join(OUT, 'cat'), { recursive: true, force: true });
+fs.mkdirSync(path.join(OUT, 'cat'), { recursive: true });
+
+const sizeOf = (f) => fs.statSync(path.join(OUT, f)).size;
+fs.writeFileSync(path.join(OUT, 'gst.json'), JSON.stringify(prune(gstRaw, ctx)));
+const catFiles = new Map();
+const slug = (s) => s.toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+function writeCat(c) {
+  if (!catFiles.has(c.id)) {
+    const file = `cat/${slug(c.name)}.json`;
+    fs.writeFileSync(path.join(OUT, file), JSON.stringify(prune(c, ctx)));
+    catFiles.set(c.id, file);
+  }
+  return catFiles.get(c.id);
+}
+
 for (const fac of factions) {
   const primary = readJson(fac.catalogue).catalogue;
   // primary + linked catalogues (recursively)
@@ -160,39 +184,46 @@ for (const fac of factions) {
     }
   };
   addCat(primary);
-
-  const prunedIds = new Set();
-  collectPrunedIds(gstRaw, keepCostNames, prunedIds);
-  cats.forEach((c) => collectPrunedIds(c, keepCostNames, prunedIds));
-  const ctx = { prunedIds, dropCost };
-  const gameSystem = prune(gstRaw, ctx);
-  const catalogues = cats.map((c) => prune(c, ctx));
+  const catalogueFiles = cats.map(writeCat);
 
   // ---- wahapedia rules for this faction
-  const fid = fac.wahapediaFaction;
+  const fids = new Set([].concat(fac.wahapediaFaction));
+  const fidOk = (id) => fids.has(id);
   const detachments = {};
   const det = (name) => (detachments[norm(name)] ??= { name, rules: [], stratagems: [], enhancements: [] });
-  for (const r of detAbil.filter((r) => r.faction_id === fid)) {
+  for (const r of detAbil.filter((r) => fidOk(r.faction_id))) {
     det(r.detachment).rules.push({ name: r.name, legend: r.legend, html: cleanHtml(r.description) });
   }
-  for (const r of strat.filter((r) => r.faction_id === fid && r.detachment)) {
+  for (const r of strat.filter((r) => fidOk(r.faction_id) && r.detachment)) {
     det(r.detachment).stratagems.push({
       name: r.name, type: r.type, cp: r.cp_cost, turn: r.turn, phase: r.phase,
       legend: r.legend, html: cleanHtml(r.description),
     });
   }
-  for (const r of enh.filter((r) => r.faction_id === fid && r.detachment)) {
+  for (const r of enh.filter((r) => fidOk(r.faction_id) && r.detachment)) {
     det(r.detachment).enhancements.push({ name: r.name, cost: r.cost, legend: r.legend, html: cleanHtml(r.description) });
   }
   const coreStratagems = strat
     .filter((r) => !r.faction_id && !r.detachment && /^Core/.test(r.type))
     .map((r) => ({ name: r.name, type: r.type, cp: r.cp_cost, turn: r.turn, phase: r.phase, legend: r.legend, html: cleanHtml(r.description) }));
   const factionRules = abil
-    .filter((r) => r.faction_id === fid)
+    .filter((r) => fidOk(r.faction_id))
     .map((r) => ({ name: r.name, legend: r.legend, html: cleanHtml(r.description) }));
 
   // ---- wahapedia datasheets (for the datasheet viewer)
-  const sheets = ws.datasheets.filter((d) => d.faction_id === fid && d.virtual !== 'true');
+  const own = ws.datasheets.filter((d) => fidOk(d.faction_id) && d.virtual !== 'true');
+  // allied units (Knights, Titans, Agents, Daemons...) that this army can take: match by name in other factions
+  const unitNames = new Set();
+  const collectNames = (o) => {
+    if (Array.isArray(o)) return o.forEach(collectNames);
+    if (!o || typeof o !== 'object') return;
+    if ((o.type === 'unit' || o.type === 'model') && o.name) unitNames.add(norm(o.name.replace(/\[Legends\]/g, '')));
+    Object.values(o).forEach(collectNames);
+  };
+  cats.forEach((c) => collectNames([c.sharedSelectionEntries, c.selectionEntries]));
+  const ownNames = new Set(own.map((d) => norm(d.name)));
+  const allied = ws.datasheets.filter((d) => !fidOk(d.faction_id) && d.virtual !== 'true' && unitNames.has(norm(d.name)) && !ownNames.has(norm(d.name)));
+  const sheets = [...own, ...allied.filter((d, i) => allied.findIndex((x) => norm(x.name) === norm(d.name)) === i)];
   const sheetIds = new Set(sheets.map((d) => d.id));
   const byDs = (rows) => {
     const m = new Map();
@@ -255,17 +286,16 @@ for (const fac of factions) {
     key: fac.key,
     name: fac.name,
     primaryCatalogueId: primary.id,
-    gameSystem,
-    catalogues,
+    preferCatalogueIds: (fac.preferCatalogues || []).map((f) => readJson(f).catalogue.id),
+    catalogueFiles,
     rules: { detachments, coreStratagems, factionRules },
     datasheets,
     abilities: sharedAbilities,
   };
   const file = `${fac.key}.json`;
   fs.writeFileSync(path.join(OUT, file), JSON.stringify(data));
-  const size = fs.statSync(path.join(OUT, file)).size;
-  console.log(`${fac.name}: ${cats.map((c) => c.name).join(', ')} -> ${file} (${(size / 1024).toFixed(0)} KB)`);
-  console.log(`  wahapedia: ${Object.keys(detachments).length} detachments, ${coreStratagems.length} core stratagems, ${factionRules.length} faction rules`);
-  index.factions.push({ key: fac.key, name: fac.name, alliance: fac.alliance, file, size });
+  const size = sizeOf(file) + sizeOf('gst.json') + catalogueFiles.reduce((t, f) => t + sizeOf(f), 0);
+  console.log(`${fac.name.padEnd(26)} ${(size / 1024).toFixed(0).padStart(5)} KB  ${Object.keys(detachments).length} det, ${Object.keys(datasheets).length} sheets, ${factionRules.length} rules  [${cats.map((c) => c.name).join(', ')}]`);
+  index.factions.push({ key: fac.key, name: fac.name, alliance: fac.alliance, accent: fac.accent, file, size });
 }
 fs.writeFileSync(path.join(OUT, 'index.json'), JSON.stringify(index, null, 2));

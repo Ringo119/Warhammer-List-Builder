@@ -27,8 +27,15 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2,json}'],
-        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+        // app shell is precached; faction data is cached the first time a faction is opened
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2}', 'data/index.json'],
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.includes('/data/') && url.pathname.endsWith('.json'),
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'faction-data', expiration: { maxEntries: 200 } },
+          },
+        ],
         navigateFallback: 'index.html',
       },
     }),
