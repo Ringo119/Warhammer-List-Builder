@@ -164,7 +164,7 @@ export function go(path: string, replace = false) {
   else location.hash = url;
   if (replace) window.dispatchEvent(new HashChangeEvent('hashchange'));
 }
-export function back(fallback = '') {
+export function back(fallback = 'wh40k') {
   if (history.length > 1 && document.referrer !== undefined && sessionStorage.getItem('wlb.nav')) history.back();
   else go(fallback, true);
 }

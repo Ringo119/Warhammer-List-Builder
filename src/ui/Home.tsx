@@ -7,14 +7,53 @@ import { fromShareCode } from '../export';
 import { AppBar, Loading, Sheet, toast } from './common';
 import { Crest, IconDup, IconImport, IconMore, IconPlus, IconTrash, IconEdit, IconChevron } from './icons';
 
+export const GAMES = [{ key: 'wh40k', name: 'Warhammer 40,000', edition: '11th Edition', route: 'wh40k' }];
+export const gameOf = (r: Roster) => r.game ?? 'wh40k';
+
+/** Start screen: choose which game to build lists for */
+export function GamesHome() {
+  const all = useRosters();
+  return (
+    <>
+      <AppBar title="List Builder" sub="Tabletop army lists" />
+      <main className="screen">
+        <div className="section-h">Games</div>
+        <div className="list">
+          {GAMES.map((g) => {
+            const n = all.filter((r) => gameOf(r) === g.key).length;
+            return (
+              <button key={g.key} className="game-card" onClick={() => go(g.route)}>
+                <div className="crest"><Crest /></div>
+                <div className="main">
+                  <div className="nm">{g.name}</div>
+                  <div className="fac">{g.edition}</div>
+                  <div className="det">{n ? `${n} saved list${n > 1 ? 's' : ''}` : 'No lists yet'}</div>
+                </div>
+                <IconChevronSmall />
+              </button>
+            );
+          })}
+        </div>
+        <p className="footer-note">More games will be added here in future.</p>
+        <Footer />
+      </main>
+    </>
+  );
+}
+
+/** Saved 40K armies, grouped by faction */
 export function Home() {
-  const rosters = useRosters();
+  const rosters = useRosters().filter((r) => gameOf(r) === 'wh40k');
+  const idx = useAsync(loadIndex, []).value;
   const [menu, setMenu] = useState<Roster | null>(null);
+  const factionName = (k: string) => idx?.factions.find((f) => f.key === k)?.name ?? k;
+  const groups = [...new Set(rosters.map((r) => r.faction))].sort((a, b) => factionName(a).localeCompare(factionName(b)));
   return (
     <>
       <AppBar
         title="Army Builder"
         sub="Warhammer 40,000 · 11th Edition"
+        onBack=""
         right={
           <button className="icon-btn" aria-label="Import army" onClick={() => go('import')}>
             <IconImport />
@@ -32,16 +71,21 @@ export function Home() {
             </button>
           </div>
         ) : (
-          <>
-            <div className="section-h">
-              My Armies <span className="count">{rosters.length}</span>
-            </div>
-            <div className="list">
-              {[...rosters].sort((a, b) => b.updated - a.updated).map((r) => (
-                <ArmyCard key={r.id} r={r} onMenu={() => setMenu(r)} />
-              ))}
-            </div>
-          </>
+          groups.map((fk) => {
+            const list = rosters.filter((r) => r.faction === fk).sort((a, b) => b.updated - a.updated);
+            const accent = idx?.factions.find((f) => f.key === fk)?.accent;
+            return (
+              <section key={fk} style={accentStyle(accent)}>
+                <div className="section-h">
+                  <span className="fac-h"><i className="dot" />{factionName(fk)}</span>
+                  <span className="count">{list.length} list{list.length > 1 ? 's' : ''}</span>
+                </div>
+                <div className="list">
+                  {list.map((r) => <ArmyCard key={r.id} r={r} onMenu={() => setMenu(r)} />)}
+                </div>
+              </section>
+            );
+          })
         )}
         <Footer />
       </main>
@@ -97,7 +141,7 @@ function ArmyCard({ r, onMenu }: { r: Roster; onMenu: () => void }) {
       </div>
       <div className="main">
         <div className="nm">{r.name}</div>
-        <div className="fac">{cat?.data.name ?? r.faction}{info?.bs ? ` · ${info.bs.name}` : ''}</div>
+        <div className="fac">{info?.bs?.name ?? (cat ? 'No battle size' : '…')}</div>
         <div className="det">{info?.dets.join(', ') || 'No detachment'}{info?.errors ? ` · ${info.errors} issue${info.errors > 1 ? 's' : ''}` : ''}</div>
       </div>
       <div className="p">
@@ -132,7 +176,7 @@ export function NewArmy() {
     const alliances = [...new Set(idx.value.factions.map((f) => f.alliance))];
     return (
       <>
-        <AppBar title="Choose Faction" onBack="" />
+        <AppBar title="Choose Faction" onBack="wh40k" />
         <main className="screen">
           {alliances.map((a) => (
             <div key={a}>
@@ -177,7 +221,7 @@ function NewArmyForm({ faction, onBack }: { faction: string; onBack: () => void 
   if (catQ.error) return <div className="pad">Could not load faction: {String(catQ.error)}</div>;
   if (!cat || !base) return <Loading text="Loading faction data…" />;
   const create = () => {
-    let r: Roster = { ...base, name: name.trim() || `${cat.data.name} Army` };
+    let r: Roster = { ...base, game: 'wh40k', name: name.trim() || `${cat.data.name} Army` };
     const s = sizes.find((x) => x.id === size);
     if (s) r = chooseInGroup(cat, r, s.bs!.uid, s.g, s.opt);
     store.put(r);
@@ -223,7 +267,7 @@ export function ImportScreen({ code }: { code?: string }) {
   }, [text]);
   return (
     <>
-      <AppBar title="Import Army" onBack="" />
+      <AppBar title="Import Army" onBack="wh40k" />
       <main className="screen pad">
         <div className="field">
           <label htmlFor="code">Army code or share link</label>
@@ -237,7 +281,7 @@ export function ImportScreen({ code }: { code?: string }) {
         )}
       </main>
       <div className="bottom-bar">
-        <button className="btn block" onClick={() => back('')}>Cancel</button>
+        <button className="btn block" onClick={() => back('wh40k')}>Cancel</button>
         <button
           className="btn primary block"
           disabled={!preview}

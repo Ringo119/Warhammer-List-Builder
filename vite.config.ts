@@ -11,9 +11,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/*.png', 'icons/*.svg'],
       manifest: {
-        name: 'Warhammer 40K List Builder',
-        short_name: '40K Lists',
-        description: 'Warhammer 40,000 11th edition army list builder',
+        name: 'List Builder',
+        short_name: 'List Builder',
+        description: 'Tabletop army list builder (Warhammer 40,000)',
         theme_color: '#0e1013',
         background_color: '#0e1013',
         display: 'standalone',

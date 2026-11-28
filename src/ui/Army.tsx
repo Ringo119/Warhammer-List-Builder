@@ -26,8 +26,8 @@ function Guard({ a, children }: { a: ReturnType<typeof useArmy>; children: (st: 
   if (a.error)
     return (
       <>
-        <AppBar title="Army" onBack="" />
-        <div className="empty"><p>{a.error}</p><button className="btn" onClick={() => go('', true)}>Back to armies</button></div>
+        <AppBar title="Army" onBack="wh40k" />
+        <div className="empty"><p>{a.error}</p><button className="btn" onClick={() => go('wh40k', true)}>Back to armies</button></div>
       </>
     );
   if (!a.st || !a.roster) return <Loading text="Loading army…" />;
@@ -82,7 +82,7 @@ export function ArmyScreen({ id, tab }: { id: string; tab: 'roster' | 'rules' })
             <AppBar
               title={r.name}
               sub={`${st.cat.data.name}${bs ? ` · ${bs.name}` : ''}`}
-              onBack=""
+              onBack="wh40k"
               right={
                 <>
                   <button className="icon-btn" aria-label="Export" onClick={() => go(`army/${id}/export`)}><I.IconShare /></button>
@@ -186,7 +186,7 @@ export function ArmyScreen({ id, tab }: { id: string; tab: 'roster' | 'rules' })
                 onClick={() => {
                   if (confirm(`Delete "${r.name}"?`)) {
                     store.remove(r.id);
-                    go('', true);
+                    go('wh40k', true);
                   }
                 }}
               >
