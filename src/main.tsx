@@ -10,6 +10,7 @@ import { GamesHome, Home, NewArmy, ImportScreen } from './ui/Home';
 import { ArmyScreen, AddUnits, UnitScreen, Settings, ExportScreen, BrowseDatasheet } from './ui/Army';
 import { ToastHost } from './ui/common';
 import { useEffect } from 'react';
+import { setupUpdates } from './pwa';
 
 function App() {
   const [a, b, c, d, e] = useRoute();
@@ -41,3 +42,5 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 );
+
+setupUpdates();

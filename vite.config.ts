@@ -9,6 +9,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: false, // registered in src/pwa.ts (with update checks for iOS home-screen apps)
       includeAssets: ['icons/*.png', 'icons/*.svg'],
       manifest: {
         name: 'List Builder',
@@ -37,6 +38,9 @@ export default defineConfig({
           },
         ],
         navigateFallback: 'index.html',
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
       },
     }),
   ],
