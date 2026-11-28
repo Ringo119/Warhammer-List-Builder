@@ -10,6 +10,9 @@ Faction data downloads the first time you open that faction and is then availabl
 
 ## Features
 
+- Home screen to choose the game (Warhammer 40,000 for now; built to add more games later)
+- Saved armies grouped by faction
+
 - Army roster grouped like the app (Characters, Battleline, Dedicated Transports, Other Datasheets, Allied Units), with points, Detachment Points (DP) and Enhancement counters
 - Battle size, multiple detachments (DP costs), force disposition, Legends / optional content toggles
 - Unit configuration: model counts, wargear choices, splitting models for mixed wargear, Warlord, Enhancements (filtered by your detachments), attaching Leaders to bodyguard units

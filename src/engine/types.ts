@@ -17,6 +17,8 @@ export interface Sel {
 
 export interface Roster {
   id: string;
+  /** game system the list belongs to (lists made before this field existed are 40K) */
+  game?: string;
   name: string;
   faction: string;
   sels: Sel[];

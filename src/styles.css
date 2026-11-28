@@ -292,3 +292,14 @@ textarea.input { min-height: 220px; font-family: ui-monospace, Menlo, Consolas, 
 .num-input { width: 72px; text-align: center; background: transparent; border: 0; border-bottom: 1px solid var(--line); font-weight: 700; padding: 6px 0; outline: none; -moz-appearance: textfield; }
 .num-input:focus { border-color: var(--accent); }
 .num-input::-webkit-outer-spin-button, .num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.game-card { background: var(--card); border-radius: 14px; padding: 18px 14px; display: flex; gap: 14px; align-items: center; width: 100%; text-align: left; position: relative; overflow: hidden; min-height: 96px; border: 1px solid var(--line); }
+.game-card::after { content: ''; position: absolute; right: -50px; top: -50px; width: 180px; height: 180px; background: radial-gradient(circle, var(--accent-soft), transparent 70%); pointer-events: none; }
+.game-card:active { background: var(--card-2); }
+.game-card .crest { width: 60px; height: 60px; border-radius: 14px; background: color-mix(in srgb, var(--accent) 16%, #1c2027); border: 1px solid color-mix(in srgb, var(--accent) 45%, #1c2027); color: var(--accent); display: grid; place-items: center; flex: none; }
+.game-card .crest svg { width: 36px; height: 36px; }
+.game-card .main { flex: 1; min-width: 0; }
+.game-card .nm { font-family: var(--head); font-size: 24px; font-weight: 700; text-transform: uppercase; line-height: 1.1; }
+.game-card .fac { font-size: 14px; color: var(--accent); }
+.game-card .det { font-size: 13px; color: var(--muted); }
+.fac-h { display: inline-flex; align-items: center; gap: 8px; color: var(--text); }
+.fac-h .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); display: inline-block; }
